@@ -133,7 +133,7 @@
 
 	$ sudo shutdown -r now
 
-# Step 16 Last Step: Verify OpenCV is installed
+# Step 14 Last Step: Verify OpenCV is installed
 
 #### For example, in python3
 
