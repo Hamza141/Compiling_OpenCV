@@ -1,69 +1,78 @@
-# Compile OpenCV 3.2.0 + OpenCV Contrib for Python on Raspberry Pi
+# Compiling OpenCV 3.2.0 + OpenCV Contrib
 
-> I assume you have downloaded [Raspbian](https://www.raspberrypi.org/downloads/raspbian/) and installed it on your Pi. Also I assume your RPi is running and functioning perfectly.
-
-> Make sure you have extended your disk before performing any step from below.
-
-# Step 1:
+# Step 1: Update all programs
 
 	$ sudo apt-get update
 	$ sudo apt-get upgrade
-	$ sudo rpi-update (can be skipped, but recommended) (don't do it if you will use the RPI cam as recommended by official RPI Website)
 	$ sudo reboot now
 
-# Step 2:
+# Step 2: Download/Install build tools
 
 	$ sudo apt-get install build-essential cmake pkg-config
 
-# Step 3:
+# Step 3: Download/Install required libraries
 
 	$ sudo apt-get install libjpeg-dev libtiff5-dev libjasper-dev libpng12-dev
-
-# Step 4:
-
 	$ sudo apt-get install libgtk2.0-dev libgstreamer0.10-0-dbg libgstreamer0.10-0 libgstreamer0.10-dev libv4l-0 libv4l-dev
-
-# Step 5:
-
 	$ sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev libv4l-dev
 	$ sudo apt-get install libxvidcore-dev libx264-dev
-
-# Step 6:
-
 	$ sudo apt-get install libatlas-base-dev gfortran
-	$ sudo apt-get install python-numpy python-scipy python-matplotlib
 	$ sudo apt-get install default-jdk ant
 	$ sudo apt-get install libgtkglext1-dev
 	$ sudo apt-get install v4l-utils
+	
+# Step 4: Download/Install python libraries
 
-# Step 7:
-install pip
+#### For python2
+
+	$ sudo apt-get install python-numpy python-scipy python-matplotlib
+
+#### For python3
+	
+	$ sudo apt-get install python3-numpy python3-scipy python3-matplotlib	
+
+
+# Step 5: Download/Install pip
 
 	$ wget https://bootstrap.pypa.io/get-pip.py
-	$ sudo python get-pip.py
 
-# Step 8:
+#### For python2
+
+	$ sudo python get-pip.py
+	
+#### For python3
+
+	$ sudo python3 get-pip.py
+	
+# Step 6: Download/Install python-dev
+
+#### For python2
 
 	$ sudo apt-get install python2.7-dev
 
-# Step 9:
+#### For python3
+
+	$ sudo apt-get install python3-dev
+	
+# Step 7: Download/Install numpy
+
+#### For python2
 
 	$ sudo pip install numpy
 
-# Step 10:
-Download OpenCV 3.2.0 and unpack it
+#### For python3
+
+	$ sudo pip3 install numpy
+	
+# Step 8: Download OpenCV 3.2.0 and OpenCV_Contrib 3.2.0 and unzip them
 
 	$ cd ~
 	$ wget -O opencv.zip https://github.com/Itseez/opencv/archive/3.2.0.zip
 	$ unzip opencv.zip
-
-Contrib Libraries (Non-free Modules)
-
 	$ wget -O opencv_contrib.zip https://github.com/Itseez/opencv_contrib/archive/3.2.0.zip
 	$ unzip opencv_contrib.zip
 
-# Step 11:
-preparing the build
+# Step 9: Prepare the build
 
 	$ cd ~/opencv-3.2.0/
 	$ mkdir build
@@ -76,66 +85,61 @@ preparing the build
 		-D BUILD_EXAMPLES=ON \
 		-D ENABLE_NEON=ON ..
 
-# Step 12:
-takes about 3.5 to 4 hours
+# Step 10: Compile OpenCV source code
 
-	$ sudo make -j3 (I prefer -j3, because it doesn't use all the cores so it keeps the RasPi cool enough)
+	# Replace 4 with the number of threads your CPU is capable of
+	$ sudo make -j4 
 	
-	# If any errors occurs and the process fails to continue, execute
-	
+	# If any errors occur and the process fails to continue, execute
 	$ sudo make clean
 	
-	# Sometimes using multicores can cause problems, so if you face any problems just execute $ sudo make , but keep in mind that it will take much longer so be patient as much as you can and grab your cup of tea.
+	# Sometimes using multithreading can cause problems, so if you face any problems execute
+	$ sudo make
+	# Keep in mind that this will take much longer
 
-# Step 13:
-installing the build prepared in step 11
+# Step 11: Install the build prepared in step 9
 
 	$ sudo make install
 	$ sudo ldconfig
 
-# Step 14:
+# Step 12: Edit some files
 
 	$ sudo nano /etc/ld.so.conf.d/opencv.conf
 
-opencv.conf will be blank, add the following line, then save and exit nano:
+#### Add the following line
 
-	/usr/local/lib          # enter this in opencv.conf, NOT at the command line
-				(leave a blank line at the end of opencv.conf)
+	/usr/local/lib          
 
-
-save opencv.conf by pressing ctrl+o
-get back again to the command line by pressing ctrl+x
+#### Save opencv.conf by pressing CTRL+O
+	
+#### Exit to the command line by pressing CTRL+X
 
 	$ sudo ldconfig
 
 	$ sudo nano /etc/bash.bashrc
 
-add the following lines at the bottom of bash.bashrc
+### Add the following lines at the bottom of bash.bashrc file
 
 	PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig       
 	export PKG_CONFIG_PATH
 
-(leave a blank line at the end of bash.bashrc)
-save bash.bashrc changes (ctrl+o), then back at the command line (ctrl+x), 
+#### Leave an empty line at the end of the file
 
-#Step 15:
-Reboot
+#### Save bash.bashrc by pressing CTRL+O 
+
+#### Exit to the command line by pressing CTRL+X
+
+# Step 13: Reboot
 
 	$ sudo shutdown -r now
 
-#Step 16 Last Step:
-verifying the installation
+# Step 16 Last Step: Verify OpenCV is installed
 
-Open Python 2 IDLE on RasPi
-Type the following lines in the python shell:
+#### For example, in python3
 
+	$ python3
 	>>> import cv2
 	>>> print cv2.__version__
-
-the following line should appear then:
-
+	
+#### The output should be
 	'3.2.0'
-#Done
-
-**TODO**
-- [ ] Connect to RPi without internet connection.
